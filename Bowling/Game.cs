@@ -16,12 +16,13 @@ namespace Bowling
     {
         public List<Frame> Frames { get; } 
         public int GameLength { get; set; } = 10;
-        private List<int> Scores { get; set; }
+        
+        private List<int> scores;
 
         public Game()
         {
             Frames = new List<Frame>();
-            Scores = new List<int>(); 
+            scores = new List<int>(); 
         }
 
         public void AddFrame(params int[] shots)
@@ -32,9 +33,12 @@ namespace Bowling
             if (shots.Length == 3 && (Frames.Count != GameLength - 1 || shots[0] + shots[1] < 10))
                 throw new ArgumentException();
 
-            Scores.AddRange(shots);
+            scores.AddRange(shots);
 
             Frames.Add(new Frame(shots));
+
+            if (Frames.Count == GameLength)
+                GetScores();
         }
 
         public int GetScores()
@@ -44,20 +48,20 @@ namespace Bowling
 
             for (var i = 0; roundIndex < GameLength; i++)
             {
-                if (Scores[i] == 10)    // Strike
+                if (scores[i] == 10)    // Strike
                 {
-                    points += 10 + Scores[i + 1] + Scores[i + 2];
+                    points += 10 + scores[i + 1] + scores[i + 2];
                     Frames[roundIndex].Points = points;
                 }
-                else if (Scores[i] + Scores[i + 1] == 10)   // Spare
+                else if (scores[i] + scores[i + 1] == 10)   // Spare
                 {
-                    points += 10 + Scores[i + 2];
+                    points += 10 + scores[i + 2];
                     Frames[roundIndex].Points = points;
                     i++;
                 }
                 else
                 {
-                    points += Scores[i] + Scores[i + 1];
+                    points += scores[i] + scores[i + 1];
                     Frames[roundIndex].Points = points;
                     i++;
                 }
