@@ -29,6 +29,43 @@ namespace BowlingTests
             game.AddFrame(10);
 
             game.AddFrame(2, 8, 6);
+
+            var expectedResult = 133;
+
+            Assert.That(game.GetScore(), Is.EqualTo(expectedResult));
+        }
+
+        [Test]
+        public void MaxScoreTest()
+        {
+            var game = new Game();
+
+            game.AddFrame(10);
+            game.AddFrame(10);
+            game.AddFrame(10);
+
+            game.AddFrame(10);
+            game.AddFrame(10);
+            game.AddFrame(10);
+
+            game.AddFrame(10);
+            game.AddFrame(10);
+            game.AddFrame(10);
+
+            game.AddFrame(10, 10, 10);
+
+            var expectedResult = 300;
+
+            Assert.That(game.GetScore(), Is.EqualTo(expectedResult));
+        }
+
+        [Test]
+        public void AddFrameExceptionTest()
+        {
+            var game = new Game();
+
+            Assert.Throws<ArgumentException>(() => game.AddFrame(13,2));
+            Assert.Throws<ArgumentException>(() => game.AddFrame(4, 9));
         }
     }
 }

@@ -26,7 +26,7 @@ namespace BowlingConsoleApp
             game.AddFrame(10);
 
             game.AddFrame(2, 8, 6);
-            var result = game.GetScores();
+            var result = game.GetScore();
         }
     }
 }
