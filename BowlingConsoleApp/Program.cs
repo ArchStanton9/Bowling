@@ -13,20 +13,47 @@ namespace BowlingConsoleApp
         {
             var game = new Game();
 
-            game.AddFrame(1, 4);
-            game.AddFrame(4, 5);
-            game.AddFrame(6, 4);
+            Console.WriteLine("Введите количество сбитых кегль каждым из бросков через пробел.");
 
-            game.AddFrame(5, 5);
-            game.AddFrame(10);
-            game.AddFrame(0, 1);
+            game.GameOver += GameOver;
 
-            game.AddFrame(7, 3);
-            game.AddFrame(6, 4);
-            game.AddFrame(10);
+            while (true)
+            {
+                try
+                {
+                    Console.Write("Фрейм №{0}: ", game.Frames.Count + 1);
+                    var input = Console.ReadLine();
 
-            game.AddFrame(2, 8, 6);
-            var result = game.GetScore();
+                    var shots = input
+                        .Trim(' ')
+                        .Split(' ')
+                        .Select(s => int.Parse(s))
+                        .ToArray();
+
+                    game.AddFrame(shots);
+                }
+                catch (ArgumentException e )
+                {
+                    Console.WriteLine(e.Message);
+                }
+                catch (FormatException)
+                {
+                    Console.WriteLine("Не удалось считать количество сбитых кегль. Используйте целые числа");
+                }
+                
+                if (game.Frames.Count == 10)
+                {
+                    Console.WriteLine(game.GetResults());
+                    game = new Game();
+                    Console.WriteLine("Введите количество сбитых кегль.");
+                }
+
+            }
+        }
+
+        private static void GameOver()
+        {
+            Console.WriteLine("\nКонец игры.");
         }
     }
 }

@@ -19,16 +19,19 @@ namespace Bowling
         public List<int> Shots { get; private set; }
 
         private bool isLastRound() => Frames.Count == GameLength - 1;
+        public event Action GameOver;
 
         public Game()
         {
-            Reset();
+            Frames = new List<Frame>();
+            Shots = new List<int>();
         }
 
         public Game(int length)
         {
             GameLength = length;
-            Reset();
+            Frames = new List<Frame>();
+            Shots = new List<int>();
         }
 
         public void AddFrame(params int[] shots)
@@ -37,6 +40,8 @@ namespace Bowling
             Shots.AddRange(shots);
             Frames.Add(new Frame(shots));
             GetScore();
+            if (Frames.Count == GameLength)
+                GameOver?.Invoke();
         }
 
         private bool ValidateInput(int[] shots)
@@ -55,17 +60,22 @@ namespace Bowling
                 case 1:
                     if (isLastRound())
                         throw new ArgumentException("Некорректное количество бросков в последнем фрейме.");
+                    if (shots[0] != 10)
+                        throw new ArgumentException("Если количество сбитых первым броском кегль меньше десяти, нужно произвести еще один бросок");
                     break;
                 case 2:
                     if (shots[0] + shots[1] > 10)
-                        throw new ArgumentException
-                            ("Сумма очков в этом фрейме не может быть больше 10.");
+                        throw new ArgumentException("Сумма очков в этом фрейме не может быть больше 10.");
                     if (isLastRound() && shots[0] + shots[1] == 10)
                         throw new ArgumentException("Некорректное количество бросков в последнем фрейме.");
                     break;
                 case 3:
                     if (!isLastRound())
                         throw new ArgumentException("Количество бросков в этом фрейме не может быть больше двух.");
+                    if (shots[0] + shots[1] < 10 && shots[3] != 0)
+                        throw new ArgumentException("Нельзя делать третий бросок, если все кегли не были сбиты");
+                    if (shots[1] != 10 && shots[1] + shots[2] > 10)
+                        throw new ArgumentException("Некорректное количество очков в поледних двух бросках");
                     break;
                 default:
                     var message = string.Format("Количество бросков в одном фрейме не может быть равно {0}.", shots.Length);
@@ -108,10 +118,14 @@ namespace Bowling
             return points;
         }
 
-        public void Reset()
+        public string GetResults()
         {
-            Frames = new List<Frame>();
-            Shots = new List<int>();
+            var result = new StringBuilder("Результы:\n");
+            for (int i = 0; i < Frames.Count; i++)
+            {
+                result.AppendFormat("Фрейм №{0}: {1}\n", i, Frames[i].ToString());
+            }
+            return result.ToString();
         }
     }
 }

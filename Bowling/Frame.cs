@@ -10,11 +10,12 @@ namespace Bowling
     {
         public int FirstShot { get; }
         public int SecondShot { get; }
-        public int BonusShot { get; set; }
+        public int? BonusShot { get; set; }
         public int Points { get; set; }
         public FrameTags Tag { get; } = FrameTags.Default;
 
         private const int maxScore = 10;
+
         internal Frame(params int[] shots)
         {
             FirstShot = shots[0];
@@ -33,6 +34,32 @@ namespace Bowling
             {
                 Tag = FrameTags.Spare;
             }
+        }
+
+        public override string ToString()
+        {
+            var result = new StringBuilder();
+
+            if (BonusShot != null)
+            {
+                result.AppendFormat("Сбито {0} + {1} + {2} кегль.\t", FirstShot, SecondShot, BonusShot);
+            }
+            else if (Tag == FrameTags.Strike)
+            {
+                result.Append("Сбито 10 кегль. Strike! \t");
+            }
+            else if (Tag == FrameTags.Spare)
+            {
+                result.AppendFormat("Сбито {0} + {1} кегль. Spare!\t", FirstShot, SecondShot);
+            }
+            else
+            {
+                result.AppendFormat("Сбито {0} + {1} кегль.\t\t", FirstShot, SecondShot);
+            }
+
+            result.AppendFormat(" Количество очков: {0}", Points);
+
+            return result.ToString();
         }
     }
 }

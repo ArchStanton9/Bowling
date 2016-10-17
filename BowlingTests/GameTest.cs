@@ -11,52 +11,53 @@ namespace BowlingTests
     [TestFixture]
     public class GameTest
     {
+        Game testGame;
         [Test]
         public void GetScoresTest()
         {
-            var game = new Game();
+            testGame = new Game();
 
-            game.AddFrame(1, 4);
-            game.AddFrame(4, 5);
-            game.AddFrame(6, 4);
+            testGame.AddFrame(1, 4);
+            testGame.AddFrame(4, 5);
+            testGame.AddFrame(6, 4);
 
-            game.AddFrame(5, 5);
-            game.AddFrame(10);
-            game.AddFrame(0, 1);
+            testGame.AddFrame(5, 5);
+            testGame.AddFrame(10);
+            testGame.AddFrame(0, 1);
 
-            game.AddFrame(7, 3);
-            game.AddFrame(6, 4);
-            game.AddFrame(10);
+            testGame.AddFrame(7, 3);
+            testGame.AddFrame(6, 4);
+            testGame.AddFrame(10);
 
-            game.AddFrame(2, 8, 6);
+            testGame.AddFrame(2, 8, 6);
 
             var expectedResult = 133;
 
-            Assert.That(game.GetScore(), Is.EqualTo(expectedResult));
+            Assert.That(testGame.GetScore(), Is.EqualTo(expectedResult));
         }
 
         [Test]
         public void MaxScoreTest()
         {
-            var game = new Game();
+            testGame = new Game();
 
-            game.AddFrame(10);
-            game.AddFrame(10);
-            game.AddFrame(10);
+            testGame.AddFrame(10);
+            testGame.AddFrame(10);
+            testGame.AddFrame(10);
 
-            game.AddFrame(10);
-            game.AddFrame(10);
-            game.AddFrame(10);
+            testGame.AddFrame(10);
+            testGame.AddFrame(10);
+            testGame.AddFrame(10);
 
-            game.AddFrame(10);
-            game.AddFrame(10);
-            game.AddFrame(10);
+            testGame.AddFrame(10);
+            testGame.AddFrame(10);
+            testGame.AddFrame(10);
 
-            game.AddFrame(10, 10, 10);
+            testGame.AddFrame(10, 10, 10);
 
             var expectedResult = 300;
 
-            Assert.That(game.GetScore(), Is.EqualTo(expectedResult));
+            Assert.That(testGame.GetScore(), Is.EqualTo(expectedResult));
         }
 
         [Test]
@@ -66,6 +67,9 @@ namespace BowlingTests
 
             Assert.Throws<ArgumentException>(() => game.AddFrame(13,2));
             Assert.Throws<ArgumentException>(() => game.AddFrame(4, 9));
+            Assert.Throws<ArgumentException>(() => game.AddFrame());
+            Assert.Throws<ArgumentException>(() => game.AddFrame(1, 2, 4));
+            Assert.Throws<ArgumentException>(() => game.AddFrame(1, 1, 1, 5));
         }
     }
 }
