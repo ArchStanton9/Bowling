@@ -10,11 +10,9 @@ namespace Bowling
     {
         public int FirstShot { get; }
         public int SecondShot { get; }
-        public int? BonusShot { get; set; }
+        public int? BonusShot { get; }
         public int Points { get; set; }
         public FrameTags Tag { get; } = FrameTags.Default;
-
-        private const int maxScore = 10;
 
         internal Frame(params int[] shots)
         {
@@ -26,11 +24,11 @@ namespace Bowling
             if (shots.Length > 2)
                 BonusShot = shots[2];
 
-            if (FirstShot == maxScore)
+            if (FirstShot == BowlingGame.PinsCount)
             {
                 Tag = FrameTags.Strike;
             }
-            else if(FirstShot + SecondShot == maxScore)
+            else if(FirstShot + SecondShot == BowlingGame.PinsCount)
             {
                 Tag = FrameTags.Spare;
             }

@@ -12,39 +12,49 @@ namespace Bowling
         Spare,
         Default
     }
-    public class Game
+    public class BowlingGame
     {
+        static public int PinsCount { get; set; } = 10;
         public List<Frame> Frames { get; private set; } 
         public int GameLength { get; set; } = 10;
-        public List<int> Shots { get; private set; }
+        private List<int> _shots;
 
         private bool isLastRound() => Frames.Count == GameLength - 1;
         public event Action GameOver;
 
-        public Game()
-        {
-            Frames = new List<Frame>();
-            Shots = new List<int>();
-        }
+        public BowlingGame() : this(10) { }
 
-        public Game(int length)
+        public BowlingGame(int length)
         {
             GameLength = length;
+            Reset();
+        }
+
+        public void Reset()
+        {
             Frames = new List<Frame>();
-            Shots = new List<int>();
+            _shots = new List<int>();
         }
 
         public void AddFrame(params int[] shots)
         {
-            ValidateInput(shots);
-            Shots.AddRange(shots);
+            if (shots.Length == 0)  // Если пришел пустой массив превращаем его в Фрейм {0, 0}
+                shots = new[] { 0, 0 };
+
+            if (shots.Length == 2 && shots[0] == 10)    // фрейм вида {10, 0} превращаем в {10}
+                shots = new[] { 10 };
+
+            ValidateShots(shots);
+            _shots.AddRange(shots);
             Frames.Add(new Frame(shots));
-            GetScore();
+
+            Calculate();
+
             if (Frames.Count == GameLength)
                 GameOver?.Invoke();
         }
 
-        private bool ValidateInput(int[] shots)
+        private void ValidateShots(int[] shots)
         {
             foreach (var shot in shots)
             {
@@ -60,58 +70,50 @@ namespace Bowling
                 case 1:
                     if (isLastRound())
                         throw new ArgumentException("Некорректное количество бросков в последнем фрейме.");
-                    if (shots[0] != 10)
+                    if (shots[0] != PinsCount)
                         throw new ArgumentException("Если количество сбитых первым броском кегль меньше десяти, нужно произвести еще один бросок");
                     break;
                 case 2:
-                    if (shots[0] + shots[1] > 10)
+                    if (shots[0] + shots[1] > PinsCount)
                         throw new ArgumentException("Сумма очков в этом фрейме не может быть больше 10.");
-                    if (isLastRound() && shots[0] + shots[1] == 10)
+                    if (isLastRound() && shots[0] + shots[1] == PinsCount)
                         throw new ArgumentException("Некорректное количество бросков в последнем фрейме.");
                     break;
                 case 3:
                     if (!isLastRound())
                         throw new ArgumentException("Количество бросков в этом фрейме не может быть больше двух.");
-                    if (shots[0] + shots[1] < 10 && shots[3] != 0)
+                    if (shots[0] + shots[1] < PinsCount && shots[3] != 0)
                         throw new ArgumentException("Нельзя делать третий бросок, если все кегли не были сбиты");
-                    if (shots[1] != 10 && shots[1] + shots[2] > 10)
-                        throw new ArgumentException("Некорректное количество очков в поледних двух бросках");
                     break;
                 default:
                     var message = string.Format("Количество бросков в одном фрейме не может быть равно {0}.", shots.Length);
                     throw new ArgumentException(message);
             }
-
-            return true;
         }
 
-        public int GetScore()
+        public int Calculate()
         {
-            int points = 0;
-            int round = 0;
+            var points = 0;
+            var round = 0;
 
-            for (var i = 0; i < Shots.Count - 2; i++)
+            for (var i = 0; i < _shots.Count - 1 && round < Frames.Count; i += 2)
             {
-                // Strike! добавить 10 плюс два следующих броска
-                if (Shots[i] == 10)    
+                points += _shots[i] + _shots[i + 1];
+                Frames[round].Points = points;
+
+                if (Frames[round].Tag == FrameTags.Strike && i + 2 < _shots.Count)
                 {
-                    points += 10 + Shots[i + 1] + Shots[i + 2];
+                    points += _shots[i + 2];
+                    Frames[round].Points = points;
+                    i--;
+                }
+
+                if (Frames[round].Tag == FrameTags.Spare && i + 2 < _shots.Count)
+                {
+                    points += _shots[i + 2];
                     Frames[round].Points = points;
                 }
-                // Spare! добавить 10 плюс следующий бросок
-                else if (Shots[i] + Shots[i + 1] == 10)  
-                {
-                    points += 10 + Shots[i + 2];
-                    Frames[round].Points = points;
-                    i++;
-                }
-                // обычный фрейм
-                else
-                {
-                    points += Shots[i] + Shots[i + 1];
-                    Frames[round].Points = points;
-                    i++;
-                }
+
                 round++;
             }
 
@@ -123,7 +125,7 @@ namespace Bowling
             var result = new StringBuilder("Результы:\n");
             for (int i = 0; i < Frames.Count; i++)
             {
-                result.AppendFormat("Фрейм №{0}: {1}\n", i, Frames[i].ToString());
+                result.AppendFormat("Фрейм №{0}: {1}\n", i + 1, Frames[i].ToString());
             }
             return result.ToString();
         }
