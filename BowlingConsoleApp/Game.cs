@@ -1,28 +1,25 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Bowling;
 
 namespace BowlingConsoleApp
 {
     class Game
     {
-        private BowlingGame _game;
+        private BowlingGame game;
         public int Length{ get; set; }
 
         public Game()
         {
-            _game = new BowlingGame();
-            _game.GameOver += GameOver;
+            game = new BowlingGame();
+            game.GameOver += GameOver;
         }
 
         private void GameOver()
         {
             Console.WriteLine("\nКонец игры.");
-            Console.WriteLine(_game.GetResults());
-            _game.Reset();
+            Console.WriteLine(game.GetResults());
+            game.Reset();
         }
 
         public void Start()
@@ -32,7 +29,7 @@ namespace BowlingConsoleApp
             {
                 try
                 {
-                    Console.Write("Фрейм №{0}: ", _game.Frames.Count + 1);
+                    Console.Write("Фрейм №{0}: ", game.Frames.Count + 1);
 
                     var shots = Console.ReadLine()
                         .Trim(' ')
@@ -40,7 +37,7 @@ namespace BowlingConsoleApp
                         .Select(s => int.Parse(s))
                         .ToArray();
 
-                    _game.AddFrame(shots);
+                    game.AddFrame(shots);
                 }
                 catch (ArgumentException e)
                 {
