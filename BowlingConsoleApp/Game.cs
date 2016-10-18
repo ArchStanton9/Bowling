@@ -12,10 +12,9 @@ namespace BowlingConsoleApp
         private BowlingGame _game;
         public int Length{ get; set; }
 
-        public Game(int length)
+        public Game()
         {
-            Length = length;
-            _game = new BowlingGame(Length);
+            _game = new BowlingGame();
             _game.GameOver += GameOver;
         }
 

@@ -68,23 +68,26 @@ namespace Bowling
             switch (shots.Length)
             {
                 case 1:
-                    if (isLastRound())
-                        throw new ArgumentException("Некорректное количество бросков в последнем фрейме.");
                     if (shots[0] != PinsCount)
                         throw new ArgumentException("Если количество сбитых первым броском кегль меньше десяти, нужно произвести еще один бросок");
+                    if (isLastRound())
+                        throw new ArgumentException("Некорректное количество бросков в последнем фрейме. Если первым броском выбит страйк то можно сделать еще два бонусных броска.");
                     break;
+
                 case 2:
                     if (shots[0] + shots[1] > PinsCount)
                         throw new ArgumentException("Сумма очков в этом фрейме не может быть больше 10.");
                     if (isLastRound() && shots[0] + shots[1] == PinsCount)
                         throw new ArgumentException("Некорректное количество бросков в последнем фрейме.");
                     break;
+
                 case 3:
                     if (!isLastRound())
                         throw new ArgumentException("Количество бросков в этом фрейме не может быть больше двух.");
                     if (shots[0] + shots[1] < PinsCount && shots[3] != 0)
                         throw new ArgumentException("Нельзя делать третий бросок, если все кегли не были сбиты");
                     break;
+
                 default:
                     var message = string.Format("Количество бросков в одном фрейме не может быть равно {0}.", shots.Length);
                     throw new ArgumentException(message);

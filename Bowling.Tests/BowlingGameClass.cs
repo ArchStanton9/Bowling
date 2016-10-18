@@ -1,15 +1,15 @@
-﻿using System;
+﻿using NUnit.Framework;
+using Bowling;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using NUnit.Framework;
-using Bowling;
 
-namespace BowlingTests
+namespace Bowling.Tests
 {
     [TestFixture]
-    public class GameTest
+    public class BowlingGameClass
     {
         BowlingGame _testGame = new BowlingGame();
         BowlingGame _shortGame = new BowlingGame(3);
@@ -68,7 +68,7 @@ namespace BowlingTests
         {
             _testGame.Reset();
 
-            Assert.Throws<ArgumentException>(() => _testGame.AddFrame(13,2));
+            Assert.Throws<ArgumentException>(() => _testGame.AddFrame(13, 2));
             Assert.Throws<ArgumentException>(() => _testGame.AddFrame(4, 9));
             Assert.Throws<ArgumentException>(() => _testGame.AddFrame(1, 2, 4));
             Assert.Throws<ArgumentException>(() => _testGame.AddFrame(1, 1, 1, 5));
@@ -86,15 +86,18 @@ namespace BowlingTests
             Assert.That(_shortGame.Calculate(), Is.EqualTo(33));
         }
 
-        [Test]
+        [Test, MaxTime(5000)]
         public void LongGameTest()
         {
             _longGame.Reset();
 
-            for (int i = 0; i < 10000; i++)
+            for (int i = 0; i < 9999; i++)
             {
                 _longGame.AddFrame(5, 5);
             }
+            _longGame.AddFrame(5, 5, 5);
+
+            Assert.That(_longGame.Calculate(), Is.EqualTo(150000));
         }
     }
 }
