@@ -7,19 +7,27 @@ namespace Bowling
         public int FirstShot { get; }
         public int SecondShot { get; }
         public int? BonusShot { get; }
+        public int ShotsCount { get; }
         public int Points { get; set; }
         public FrameTags Tag { get; } = FrameTags.Default;
 
         internal Frame(params int[] shots)
         {
             FirstShot = shots[0];
+            ShotsCount++;
 
             if (shots.Length > 1)
+            {
                 SecondShot = shots[1];
-            
+                ShotsCount++;
+            }
+                
             if (shots.Length > 2)
+            {
                 BonusShot = shots[2];
-
+                ShotsCount++;
+            }
+            
             if (FirstShot == BowlingGame.PinsCount)
             {
                 Tag = FrameTags.Strike;

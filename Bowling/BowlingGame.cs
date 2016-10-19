@@ -68,6 +68,15 @@ namespace Bowling
                 GameOver?.Invoke();
         }
 
+        public void RemoveLastFrame()
+        {
+            var index = Frames.Count - 1;
+            var range = Frames[index].ShotsCount;
+
+            shots.RemoveRange(shots.Count - range, range);
+            Frames.RemoveAt(index);
+        }
+
         private void ValidateFrame(int[] shots)
         {
             foreach (var shot in shots)
