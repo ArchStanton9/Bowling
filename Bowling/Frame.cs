@@ -1,43 +1,67 @@
-﻿using System.Text;
+﻿using System.Linq;
+using System.Text;
 
 namespace Bowling
 {
     public class Frame
     {
         public int FirstShot { get; }
-        public int SecondShot { get; }
+        public int? SecondShot { get; }
         public int? BonusShot { get; }
-        public int ShotsCount { get; }
         public int Points { get; set; }
-        public FrameTags Tag { get; } = FrameTags.Default;
+        public Frame PreFrame { get; set; }
+        public FrameTags Tag { get; private set; }
 
-        internal Frame(params int[] shots)
+        internal Frame(Frame preFrame, params int[] shots)
         {
             FirstShot = shots[0];
-            ShotsCount++;
+            PreFrame = preFrame;
+            Points = shots.Sum();
 
             if (shots.Length > 1)
-            {
                 SecondShot = shots[1];
-                ShotsCount++;
-            }
                 
             if (shots.Length > 2)
-            {
                 BonusShot = shots[2];
-                ShotsCount++;
-            }
-            
-            if (FirstShot == BowlingGame.PinsCount)
-            {
-                Tag = FrameTags.Strike;
-            }
-            else if(FirstShot + SecondShot == BowlingGame.PinsCount)
-            {
-                Tag = FrameTags.Spare;
-            }
+
+            Tag = GetTag();
+            if (preFrame != null)
+                CalculatePoints();
         }
 
+        void CalculatePoints()
+        {
+            if (PreFrame.Tag == FrameTags.Strike && PreFrame.PreFrame?.Tag == FrameTags.Strike)
+            {
+                PreFrame.PreFrame.Points += FirstShot;
+                PreFrame.Points += FirstShot;
+            }
+            if (PreFrame.Tag == FrameTags.Strike)
+            {
+                PreFrame.Points += SecondShot == null ? FirstShot : FirstShot + (int)SecondShot;
+            }
+            if (PreFrame.Tag == FrameTags.Spare)
+            {
+                PreFrame.Points += FirstShot;
+            }
+
+            Points += PreFrame.Points;
+        }
+
+        private FrameTags GetTag()
+        {
+            if (FirstShot == BowlingGame.PinsCount)
+            {
+                return FrameTags.Strike;
+            }
+            else if (FirstShot + SecondShot == BowlingGame.PinsCount)
+            {
+                return FrameTags.Spare;
+            }
+
+            return FrameTags.Default;
+        }
+        
         public override string ToString()
         {
             var result = new StringBuilder();
