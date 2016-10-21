@@ -14,19 +14,18 @@ namespace Bowling
     public class BowlingGame
     {
         static public int PinsCount { get; set; } = 10;
+
         public int GameLength { get; } = 10;
-        public bool RealTimeCalculation { get; set; } = false;
-        // включите опцию RealTimeCalculation для высчисления количества очков после добавления каждого фрейма
-        public int Score => Calculate();
+        public int Score => lastFrame.Points;
         public event Action GameOver;
         public List<Frame> Frames { get; private set; }
 
+        private Frame lastFrame;
         private bool isLastRound() => Frames.Count == GameLength - 1;
-        private List<int> shots;
         
         public BowlingGame() : this(10) { }
 
-        public BowlingGame(int length)
+        public BowlingGame(int length) 
         {
             if (length < 1)
             {
@@ -40,7 +39,7 @@ namespace Bowling
         public void Reset()
         {
             Frames = new List<Frame>();
-            shots = new List<int>();
+            lastFrame = null;
         }
 
         public void AddFrame(params int[] shots)
@@ -58,23 +57,18 @@ namespace Bowling
                 shots = new[] { 10 };
 
             ValidateFrame(shots);
-            this.shots.AddRange(shots);
-            Frames.Add(new Frame(shots));
-
-            if (RealTimeCalculation)
-                Calculate();
+            var frame = new Frame(lastFrame, shots);
+            lastFrame = frame;
+            Frames.Add(frame);
 
             if (Frames.Count == GameLength)
                 GameOver?.Invoke();
         }
 
-        public void RemoveLastFrame()
+        public void Remove()
         {
-            var index = Frames.Count - 1;
-            var range = Frames[index].ShotsCount;
-
-            shots.RemoveRange(shots.Count - range, range);
-            Frames.RemoveAt(index);
+            Frames.RemoveAt(Frames.Count - 1);
+            lastFrame = lastFrame.PreFrame;
         }
 
         private void ValidateFrame(int[] shots)
@@ -117,46 +111,17 @@ namespace Bowling
             }
         }
 
-        private int Calculate()
-        {
-            var points = 0;
-            var round = 0;
-
-            for (var i = 0; i < shots.Count - 1 && round < Frames.Count; i += 2)
-            {
-                points += shots[i] + shots[i + 1];
-                Frames[round].Points = points;
-
-                if (Frames[round].Tag == FrameTags.Strike && i + 2 < shots.Count)
-                {
-                    points += shots[i + 2];
-                    Frames[round].Points = points;
-                    i--;
-                }
-
-                if (Frames[round].Tag == FrameTags.Spare && i + 2 < shots.Count)
-                {
-                    points += shots[i + 2];
-                    Frames[round].Points = points;
-                }
-
-                round++;
-            }
-
-            return points;
-        }
 
         public string GetResults()
         {
             var result = new StringBuilder("Результы:\n");
-            var total = Calculate();
 
             for (int i = 0; i < Frames.Count; i++)
             {
                 result.AppendFormat("Фрейм №{0}: {1}\n", i + 1, Frames[i].ToString());
             }
 
-            result.AppendFormat("Финальный счет: {0}.\n", total);
+            result.AppendFormat("Финальный счет: {0}.\n", lastFrame.Points);
 
             return result.ToString();
         }

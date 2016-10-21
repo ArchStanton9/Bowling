@@ -24,23 +24,21 @@ namespace BowlingConsoleApp
             game.Reset();
         }
 
-        static string CommandList()
-        {
-            var info = new StringBuilder("\nСписок команд:\n");
-            foreach (var key in commands.Keys)
-            {
-                info.Append(key + "\n");
-            }
-            return info.ToString();
-        }
-
         static Dictionary<string, Action<BowlingGame>> commands = new Dictionary<string, Action<BowlingGame>>()
         {
             { "quit", (game) => Environment.Exit(0) },
+            { "result", (game) => Console.WriteLine(game.GetResults()) },
+            { "help", (game) =>
+                {
+                    Console.WriteLine("\nСписок команд:");
+                    foreach (var key in commands.Keys)
+                        Console.WriteLine(key);
+                }
+            },
             { "remove", (game) => 
                 {
-                    game.RemoveLastFrame();
-                    Console.WriteLine("Раунд №{0} был удален.", game.Frames.Count);
+                    Console.WriteLine("Фрейм №{0} был удален.", game.Frames.Count);
+                    game.Remove();
                 }
             },
             { "reset", (game) =>
@@ -48,9 +46,7 @@ namespace BowlingConsoleApp
                     game.Reset();
                     Console.WriteLine("Результаты игры сброшены.");
                 }
-            },
-            { "help", (game) =>  Console.WriteLine(CommandList()) },
-            { "result", (game) => Console.WriteLine(game.GetResults()) }
+            }
         };
 
         public void Start()
@@ -67,6 +63,7 @@ namespace BowlingConsoleApp
                     if (commands.Keys.Contains(key))
                     {
                         commands[key]?.Invoke(game);
+                        Console.WriteLine();
                         continue;
                     }    
 
@@ -85,7 +82,7 @@ namespace BowlingConsoleApp
                 }
                 catch (FormatException)
                 {
-                    Console.WriteLine("Не удалось считать команду");
+                    Console.WriteLine("Неизвестная команда. Используйте help для получения списка команд.");
                 }
             }
         }
