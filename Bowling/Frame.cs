@@ -26,6 +26,7 @@ namespace Bowling
                 BonusShot = shots[2];
 
             Tag = GetTag();
+
             if (preFrame != null)
                 CalculatePoints();
         }

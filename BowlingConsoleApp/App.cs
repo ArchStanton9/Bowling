@@ -2,8 +2,6 @@
 using System.Linq;
 using Bowling;
 using System.Collections.Generic;
-using System.Text;
-using System.Text.RegularExpressions;
 
 namespace BowlingConsoleApp
 {
@@ -37,8 +35,11 @@ namespace BowlingConsoleApp
             },
             { "remove", (game) =>
                 {
-                    Console.WriteLine("\n" + "Фрейм №{0} был удален.", game.Frames.Count);
-                    game.Remove();
+                    if (game.Frames.Count != 0)
+                    {
+                        Console.WriteLine("\n" + "Фрейм №{0} был удален.", game.Frames.Count);
+                        game.Remove();
+                    }
                 }
             },
             { "reset", (game) =>

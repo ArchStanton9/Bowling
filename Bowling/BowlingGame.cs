@@ -18,7 +18,7 @@ namespace Bowling
         public int GameLength { get; } = 10;
         public int Score => lastFrame != null  ? lastFrame.Points : 0;
         public event Action GameOver;
-        public List<Frame> Frames { get; private set; }
+        public Stack<Frame> Frames { get; private set; }
 
         private Frame lastFrame;
         private bool isLastRound() => Frames.Count == GameLength - 1;
@@ -29,7 +29,7 @@ namespace Bowling
         {
             if (length < 1)
             {
-                var message = string.Format("Количество фреймов в одной ирге не может быть равно {0}",length);
+                var message = string.Format("Количество фреймов в одной ирге не может быть равно {0}", length);
                 throw new ArgumentException(message);
             }
             GameLength = length;
@@ -38,7 +38,7 @@ namespace Bowling
 
         public void Reset()
         {
-            Frames = new List<Frame>();
+            Frames = new Stack<Frame>();
             lastFrame = null;
         }
 
@@ -53,13 +53,12 @@ namespace Bowling
             if (shots.Length == 0)  // Если пришел пустой массив превращаем его в Фрейм {0, 0}
                 shots = new[] { 0, 0 };
 
-            if (shots.Length == 2 && shots[0] == 10)    // фрейм вида {10, 0} превращаем в {10}
+            if (shots.Length == 2 && shots[0] == PinsCount)    // фрейм вида {10, 0} превращаем в {10}
                 shots = new[] { 10 };
 
             ValidateFrame(shots);
-            var frame = new Frame(lastFrame, shots);
-            lastFrame = frame;
-            Frames.Add(frame);
+            Frames.Push(new Frame(lastFrame, shots));
+            lastFrame = Frames.Peek();
 
             if (Frames.Count == GameLength)
                 GameOver?.Invoke();
@@ -67,8 +66,25 @@ namespace Bowling
 
         public void Remove()
         {
-            Frames.RemoveAt(Frames.Count - 1);
-            lastFrame = lastFrame.PreFrame;
+            if (Frames.Count != 0)
+            {
+                /* -------------------------------------------sophistic----------------------------------------------
+                 * Мы не можем просто выкинуть из стека последний фрейм и поменять ссылку на голову.
+                 * Нужно откатить измения в предыдущих раундах, которые были сделаны при создании удаляемого фрейма.
+                 * Поскольку эти изменения происходят в конструкторе класса,
+                 * создадим фрейм с отрицательным количеством сбитых кегль,
+                 * который вернет значение очков в предыдущих раундах в исходное состояние.
+                */
+                var shots = new List<int>();
+                shots.Add(-lastFrame.FirstShot);
+                if (lastFrame.SecondShot != null)
+                    shots.Add(-(int)lastFrame.SecondShot);
+                if (lastFrame.BonusShot != null)
+                    shots.Add(-(int)lastFrame.BonusShot);
+   
+                lastFrame = Frames.Pop().PreFrame;
+                new Frame(lastFrame, shots.ToArray());
+            }
         }
 
         private void ValidateFrame(int[] shots)
@@ -115,10 +131,13 @@ namespace Bowling
         public string GetResults()
         {
             var result = new StringBuilder("Результы:\n");
+            var frames = Frames.ToArray();
+            var index = 1;
 
-            for (int i = 0; i < Frames.Count; i++)
+            for (int i = frames.Length - 1; i >= 0; i--)
             {
-                result.AppendFormat("Фрейм №{0}: {1}\n", i + 1, Frames[i].ToString());
+                result.AppendFormat("Фрейм №{0}: {1}\n", index, frames[i].ToString());
+                index++;
             }
 
             result.AppendFormat("Финальный счет: {0}.", Score);
