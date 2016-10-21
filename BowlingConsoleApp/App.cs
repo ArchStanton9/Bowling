@@ -3,15 +3,15 @@ using System.Linq;
 using Bowling;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace BowlingConsoleApp
 {
-    class Game
+    class App
     {
         private BowlingGame game;
-        public int Length{ get; set; }
 
-        public Game()
+        public App()
         {
             game = new BowlingGame();
             game.GameOver += GameOver;
@@ -19,7 +19,7 @@ namespace BowlingConsoleApp
 
         private void GameOver()
         {
-            Console.WriteLine("\nКонец игры.");
+            Console.WriteLine("\n" + "Конец игры.");
             Console.WriteLine(game.GetResults());
             game.Reset();
         }
@@ -27,31 +27,34 @@ namespace BowlingConsoleApp
         static Dictionary<string, Action<BowlingGame>> commands = new Dictionary<string, Action<BowlingGame>>()
         {
             { "quit", (game) => Environment.Exit(0) },
-            { "result", (game) => Console.WriteLine(game.GetResults()) },
+            { "result", (game) => Console.WriteLine("\n" + game.GetResults()) },
             { "help", (game) =>
                 {
-                    Console.WriteLine("\nСписок команд:");
+                    Console.WriteLine("\n" + "Список команд:");
                     foreach (var key in commands.Keys)
                         Console.WriteLine(key);
                 }
             },
-            { "remove", (game) => 
+            { "remove", (game) =>
                 {
-                    Console.WriteLine("Фрейм №{0} был удален.", game.Frames.Count);
+                    Console.WriteLine("\n" + "Фрейм №{0} был удален.", game.Frames.Count);
                     game.Remove();
                 }
             },
             { "reset", (game) =>
                 {
                     game.Reset();
-                    Console.WriteLine("Результаты игры сброшены.");
+                    Console.WriteLine("\n" + "Результаты игры сброшены.");
                 }
-            }
+            },
+            { "score", (game) => Console.WriteLine("\n" + "Текущий счет: {0}", game.Score) }
         };
 
-        public void Start()
+        public void Run()
         {
             Console.WriteLine("Введите через пробел количестов сбитых кегль в фрейме.");
+            Console.WriteLine("Введите help для получения списка команд.");
+
             while (true)
             {
                 try
@@ -65,7 +68,7 @@ namespace BowlingConsoleApp
                         commands[key]?.Invoke(game);
                         Console.WriteLine();
                         continue;
-                    }    
+                    }
 
                     var shots = key
                         .Trim(' ')

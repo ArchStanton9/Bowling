@@ -16,7 +16,7 @@ namespace Bowling
         static public int PinsCount { get; set; } = 10;
 
         public int GameLength { get; } = 10;
-        public int Score => lastFrame.Points;
+        public int Score => lastFrame != null  ? lastFrame.Points : 0;
         public event Action GameOver;
         public List<Frame> Frames { get; private set; }
 
@@ -121,7 +121,7 @@ namespace Bowling
                 result.AppendFormat("Фрейм №{0}: {1}\n", i + 1, Frames[i].ToString());
             }
 
-            result.AppendFormat("Финальный счет: {0}.\n", lastFrame.Points);
+            result.AppendFormat("Финальный счет: {0}.", Score);
 
             return result.ToString();
         }

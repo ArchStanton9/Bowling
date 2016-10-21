@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using System.Text;
+using static Bowling.FrameTags;
 
 namespace Bowling
 {
@@ -31,16 +32,16 @@ namespace Bowling
 
         void CalculatePoints()
         {
-            if (PreFrame.Tag == FrameTags.Strike && PreFrame.PreFrame?.Tag == FrameTags.Strike)
+            if (PreFrame.Tag == Strike && PreFrame.PreFrame?.Tag == Strike)
             {
                 PreFrame.PreFrame.Points += FirstShot;
                 PreFrame.Points += FirstShot;
             }
-            if (PreFrame.Tag == FrameTags.Strike)
+            if (PreFrame.Tag == Strike)
             {
                 PreFrame.Points += SecondShot == null ? FirstShot : FirstShot + (int)SecondShot;
             }
-            if (PreFrame.Tag == FrameTags.Spare)
+            if (PreFrame.Tag == Spare)
             {
                 PreFrame.Points += FirstShot;
             }
@@ -52,14 +53,14 @@ namespace Bowling
         {
             if (FirstShot == BowlingGame.PinsCount)
             {
-                return FrameTags.Strike;
+                return Strike;
             }
             else if (FirstShot + SecondShot == BowlingGame.PinsCount)
             {
-                return FrameTags.Spare;
+                return Spare;
             }
 
-            return FrameTags.Default;
+            return Default;
         }
         
         public override string ToString()
@@ -70,11 +71,11 @@ namespace Bowling
             {
                 result.AppendFormat("Сбито {0} + {1} + {2} кегль.\t", FirstShot, SecondShot, BonusShot);
             }
-            else if (Tag == FrameTags.Strike)
+            else if (Tag == Strike)
             {
                 result.Append("Сбито 10 кегль. Strike! \t");
             }
-            else if (Tag == FrameTags.Spare)
+            else if (Tag == Spare)
             {
                 result.AppendFormat("Сбито {0} + {1} кегль. Spare!\t", FirstShot, SecondShot);
             }
@@ -82,7 +83,7 @@ namespace Bowling
             {
                 result.AppendFormat("Сбито {0} + {1} кегль.\t\t", FirstShot, SecondShot);
             }
-
+            
             result.AppendFormat(" Количество очков: {0}", Points);
 
             return result.ToString();
